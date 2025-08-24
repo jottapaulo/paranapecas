@@ -38,6 +38,7 @@ def remover_fundo():
 
 
 if __name__ == '__main__':
-    # Render precisa usar a porta definida na variável de ambiente PORT
-    port = int(os.environ.get("PORT", 5000))
+    import os
+    port = int(os.environ.get("PORT", 10000))  # Render usa a PORT, default 10000
     app.run(host="0.0.0.0", port=port)
+
