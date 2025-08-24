@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from rembg import remove
 from PIL import Image
-import io, base64
+import io, base64, os
 
 # Inicializa o app Flask
 app = Flask(__name__)
@@ -36,3 +36,8 @@ def remover_fundo():
     # Retorna lista de imagens em base64
     return jsonify(resultados)
 
+
+if __name__ == '__main__':
+    # Render precisa usar a porta definida na variável de ambiente PORT
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
