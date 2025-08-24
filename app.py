@@ -8,6 +8,12 @@ import io, base64, os
 app = Flask(__name__)
 CORS(app)  # Habilita CORS (permite requisições do frontend)
 
+# Rota de teste (GET /)
+@app.route('/', methods=['GET'])
+def home():
+    return {"status": "ok", "mensagem": "Servidor Flask rodando no Render!"}
+
+# Rota principal para remover fundo
 @app.route('/remover-fundo', methods=['POST'])
 def remover_fundo():
     # Recebe múltiplas imagens do campo "imagens"
@@ -38,5 +44,5 @@ def remover_fundo():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))  # Render usa a PORT, default 10000
+    port = int(os.environ.get("PORT", 10000))  # Render define a PORT automaticamente
     app.run(host="0.0.0.0", port=port)
