@@ -36,6 +36,3 @@ def remover_fundo():
     # Retorna lista de imagens em base64
     return jsonify(resultados)
 
-
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=3000, debug=True)
