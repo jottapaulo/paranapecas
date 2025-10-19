@@ -3,447 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paraná Peças Toledo - Removedor de Fundo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Exo+2:wght@700&display=swap" rel="stylesheet">
+    <title>Remover Fundo de Imagem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --orange: #ff9800;
-            --bg: #0a0a0a;
-            --card: #181818;
-            --text: #eaeaea;
-            --muted: #888888;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
-            margin: 0;
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: #f7f9fb;
         }
-
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 40px;
-            background: var(--card);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.8);
-            font-family: 'Exo 2', sans-serif;
+        .card {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
-
-        .brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--orange);
+        /* Estilo para garantir que o resultado da imagem caiba */
+        #resultado-imagem img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        .social-links {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand-link {
-            display: flex;
-            align-items: center;
-            font-family: 'Exo 2', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--orange);
-            text-decoration: none;
-        }
-        .brand-link:hover { text-decoration: underline; }
-
-        .social-icon { 
-            width: 24px; 
-            height: 24px; 
-            margin-right: 6px; 
-            background-color: var(--orange); 
-            border-radius: 4px;
-        }
-
-        main {
-            text-align: center;
-            padding: 100px 20px 60px;
-        }
-
-        main h1 {
-            font-family: 'Exo 2', sans-serif;
-            color: var(--orange);
-            font-size: 50px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        main p { color: var(--muted); font-size: 18px; }
-
-        .upload-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed var(--orange);
-            border-radius: 12px;
-            padding: 40px;
-            margin: 30px auto;
-            max-width: 500px;
+        .file-input-container {
+            border: 2px dashed #9ca3af;
+            padding: 2rem;
             cursor: pointer;
-            background: var(--card);
-            transition: all 0.3s ease;
-            position: relative;
+            transition: all 0.2s;
         }
-        .upload-area:hover { background: #252525; border-color: #ff7700; }
-        .upload-area.dragover { border-color: #ff7700; background: #252525; }
-
-        .btn {
-            background: var(--orange);
-            color: #fff;
-            border: none;
-            padding: 12px 22px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 10px 5px;
-            transition: 0.3s;
-        }
-        .btn:hover:not(:disabled) { background: #e67e00; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .btn-clear { background: #d32f2f; }
-        .btn-clear:hover:not(:disabled) { background: #a60000; }
-
-        .sub-text { color: var(--muted); font-size: 14px; margin-top: 10px; }
-
-        .preview { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px; }
-        .preview img { max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-
-        .results { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 40px 0; }
-        .result-item { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px; background: #222; border-radius: 12px; }
-        .result-item img { 
-            max-width: 180px; 
-            max-height: 180px; 
-            object-fit: contain; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            /* Fundo quadriculado simulado para PNG */
-            background-image: linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-        }
-        .download-btn { background: var(--orange); color: #fff; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; }
-        .download-btn:hover { background: #e67e00; }
-
-        .action-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-
-        /* Loader circular compacto e suave */
-        #loaderContainer {
-            display: none;
-            position: relative;
-            width: 60px;
-            height: 60px;
-            margin: 20px auto;
-        }
-        #loaderCircle {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 6px solid #333;
-            border-top: 6px solid var(--orange);
-            animation: spin 1.2s linear infinite;
-        }
-        #loaderText {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-weight: 700;
-            color: var(--text);
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Mensagens de Status e Erro */
-        #statusMessage { 
-            color: #ff4d4d; /* Cor de erro mais vibrante */
-            margin: 20px auto 0; 
-            font-weight: 600; 
-            max-width: 500px;
-        }
-        
-        footer { background: var(--card); text-align: center; padding: 20px; margin-top: 40px; color: var(--muted); border-top: 1px solid #222; }
-        footer a { color: var(--orange); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
-
-        /* Media Queries para Responsividade */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                padding: 15px 20px;
-                gap: 10px;
-            }
-            .social-links {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            main h1 {
-                font-size: 40px;
-            }
+        .file-input-container:hover {
+            border-color: #6b7280;
+            background-color: #f9fafb;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center p-4">
 
-<header>
-    <div class="brand">PARANÁ PEÇAS TOLEDO</div>
-    <div class="social-links">
-        <a href="https://www.paranapecastoledo.com.br" target="_blank" class="brand-link">
-            <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z"/></svg> 
-            SITE OFICIAL
-        </a>
-        <a href="https://www.mercadolivre.com.br/pagina/paranapeastoledo" target="_blank" class="brand-link">
-            <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 11H8V8h8v3zm-8 4h8v-3H8v3zm12.983-1.637l-1.35-2.025a1.002 1.002 0 00-.833-.363H5.196a1.001 1.001 0 00-.833.363l-1.35 2.025C2.658 12.766 2 13.568 2 15c0 1.93 1.57 3.5 3.5 3.5h15c1.93 0 3.5-1.57 3.5-3.5 0-1.432-.658-2.234-1.617-3.137zM5.5 17c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h15c.276 0 .5.224.5.5s-.224.5-.5.5h-15z"/></svg> 
-            MERCADO LIVRE
-        </a>
-        <a href="https://www.instagram.com/pr_pecas/" target="_blank" class="brand-link">
-            <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm-.2 2.1c-2.4 0-4.3 1.9-4.3 4.3v7.6c0 2.4 1.9 4.3 4.3 4.3h7.6c2.4 0 4.3-1.9 4.3-4.3V7.8c0-2.4-1.9-4.3-4.3-4.3H7.6zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8.1c-1.71 0-3.1-1.39-3.1-3.1s1.39-3.1 3.1-3.1 3.1 1.39 3.1 3.1-1.39 3.1-3.1 3.1zM18.4 7a1 1 0 100-2 1 1 0 000 2z"/></svg>
-            INSTAGRAM
-        </a>
-    </div>
-</header>
+    <div class="card bg-white p-8 rounded-xl w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Removedor de Fundo de Imagem</h1>
+        <p class="text-center text-gray-500 mb-8">Faça o upload de uma imagem para remover o fundo usando IA.</p>
 
-<main>
-    <h1>Remover Fundo de Imagens</h1>
-    <p>Envie suas fotos e obtenha imagens PNG em segundos. <br/> Processamento feito pela IA **rembg**.</p>
-
-    <label class="upload-area" id="uploadArea">
-        <input type="file" id="inputImagem" accept="image/*" multiple hidden>
-        <button class="btn">➕ Iniciar com foto</button>
-        <p class="sub-text">ou solte uma imagem aqui</p>
-    </label>
-
-    <div class="preview" id="preview" style="display:none;"></div>
-
-    <div class="action-buttons">
-        <button class="btn" id="processarBtn" style="display:none;">PROCESSAR</button>
-        <button class="btn btn-clear" id="limparBtn" style="display:none;">🗑️ Limpar</button>
-    </div>
-    
-    <!-- Elemento para exibir mensagens de status/erro -->
-    <p id="statusMessage" style="color: #ff4d4d; margin-top: 20px; font-weight: 600;"></p>
-
-    <!-- Loader circular compacto -->
-    <div id="loaderContainer">
-        <div id="loaderCircle"></div>
-        <div id="loaderText">0%</div>
-    </div>
-
-    <div class="results" id="results"></div>
-    <button class="btn" id="baixarTodasBtn" style="display:none;">Salvar Todas</button>
-</main>
-
-<footer>
-    <p>&copy; 2025 <a href="https://www.paranapecastoledo.com.br" target="_blank">Paraná Peças Toledo</a>. Todos os direitos reservados.</p>
-</footer>
-
-<script>
-// ******** VARIÁVEL DE CONFIGURAÇÃO CRUCIAL ********
-// Quando o deploy no Render estiver pronto, substitua o placeholder
-// pela URL real do seu serviço Render (ex: https://seu-projeto.onrender.com/remover-fundo)
-const API_BASE_URL = "API_URL_PLACEHOLDER"; 
-// *************************************************
-
-const dropArea = document.getElementById("uploadArea");
-const input = document.getElementById("inputImagem");
-const preview = document.getElementById("preview");
-const processarBtn = document.getElementById("processarBtn");
-const limparBtn = document.getElementById("limparBtn");
-const results = document.getElementById("results");
-const baixarTodasBtn = document.getElementById("baixarTodasBtn");
-const loaderContainer = document.getElementById("loaderContainer");
-const loaderText = document.getElementById("loaderText");
-const statusMessage = document.getElementById("statusMessage");
-let processedFiles = [];
-
-// Função para limpar todas as mensagens de erro/status
-function clearMessages() {
-    statusMessage.textContent = "";
-    results.querySelectorAll('.error-item').forEach(el => el.remove());
-}
-
-// Função utilitária para exibir erros na tela
-function displayError(message) {
-    statusMessage.textContent = message;
-    console.error(message);
-}
-
-// Event Listeners para a UI (não alterados)
-dropArea.addEventListener("click", () => input.click());
-
-input.addEventListener("change", () => {
-    clearMessages();
-    const files = input.files;
-    if (files.length > 0) {
-        dropArea.style.display = "none";
-        preview.style.display = "flex";
-        processarBtn.style.display = "inline-block";
-        limparBtn.style.display = "inline-block";
-    } else {
-        limparBtn.click(); 
-        return;
-    }
-    preview.innerHTML = "";
-    [...files].forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-            const img = document.createElement("img");
-            img.src = e.target.result;
-            preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-    });
-});
-
-["dragenter","dragover"].forEach(eventName => {
-    dropArea.addEventListener(eventName, e => {
-        e.preventDefault();
-        dropArea.classList.add("dragover");
-    });
-});
-["dragleave","drop"].forEach(eventName => {
-    dropArea.addEventListener(eventName, e => {
-        e.preventDefault();
-        dropArea.classList.remove("dragover");
-    });
-});
-dropArea.addEventListener("drop", e => {
-    e.preventDefault();
-    input.files = e.dataTransfer.files;
-    input.dispatchEvent(new Event("change"));
-});
-
-// Processar imagens: Atualizado para usar API_BASE_URL
-processarBtn.addEventListener("click", async () => {
-    clearMessages();
-    if (API_BASE_URL === "API_URL_PLACEHOLDER") {
-        displayError("ERRO: A URL da API do Render não foi configurada no código. Por favor, substitua 'API_URL_PLACEHOLDER' pela URL real do seu serviço Render.");
-        return;
-    }
-    if (!input.files.length) {
-        displayError("Selecione imagens primeiro!");
-        return;
-    }
-    
-    loaderContainer.style.display = "block";
-    results.innerHTML = "";
-    processedFiles = [];
-
-    const files = [...input.files];
-    const formData = new FormData();
-    
-    files.forEach(file => {
-        formData.append("imagens", file);
-    });
-    
-    processarBtn.disabled = true;
-    limparBtn.disabled = true;
-    baixarTodasBtn.style.display = "none";
-
-    try {
-        loaderText.textContent = "0%";
-        
-        // Chamada AGORA para o endpoint externo do Render
-        const response = await fetch(API_BASE_URL, {
-            method: "POST",
-            body: formData
-        });
-
-        if (!response.ok) {
-             // Tenta extrair mensagem de erro do corpo da resposta, se possível
-            const errorBody = await response.text();
-            throw new Error(`Erro de rede ou servidor: HTTP ${response.status}. Detalhes: ${errorBody.substring(0, 100)}...`);
-        }
-        
-        const data = await response.json(); 
-        
-        data.forEach((imgBase64, i) => {
-            const percent = Math.round(((i + 1) / files.length) * 100);
-            loaderText.textContent = percent + "%";
+        <form id="upload-form" class="space-y-6">
+            <!-- Área de Upload -->
+            <div class="file-input-container rounded-lg text-center" onclick="document.getElementById('file-input').click()">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 014 4v2m-5 4h.01M17 16h.01M14 16h.01M21 21H3a2 2 0 01-2-2V5a2 2 0 012-2h3.5a1 1 0 01.8.4l1.5 2.5a1 1 0 00.8.4h6.4a1 1 0 00.8-.4l1.5-2.5a1 1 0 01.8-.4H21a2 2 0 012 2v14a2 2 0 01-2 2z"></path></svg>
+                <p class="mt-1 text-sm text-gray-600" id="file-name">Clique para selecionar ou arraste e solte uma imagem (PNG ou JPG)</p>
+            </div>
             
-            if (imgBase64.startsWith('erro:')) {
-                const errorText = imgBase64.substring(5);
-                const div = document.createElement("div");
-                div.className = "result-item error-item";
-                div.innerHTML = `<span style="color: #fff; background: #d32f2f; padding: 8px; border-radius: 6px; font-size: 14px;">❌ Erro Imagem ${i + 1}: ${errorText}</span>`;
-                results.appendChild(div);
-                return;
+            <input type="file" id="file-input" name="imagens" accept="image/png, image/jpeg, image/webp" class="hidden" required>
+            
+            <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                <span id="button-text">Selecione uma Imagem</span>
+                <div id="loading-spinner" class="hidden inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            </button>
+        </form>
+
+        <div id="status-message" class="mt-4 text-center text-sm font-medium hidden"></div>
+
+        <div id="resultado-imagem" class="mt-6 text-center">
+            <!-- A imagem de resultado será inserida aqui -->
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = "https://paranapecas-2.onrender.com/remover-fundo"; // URL FINAL DA API DO RENDER
+
+        const fileInput = document.getElementById('file-input');
+        const uploadForm = document.getElementById('upload-form');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const statusMessage = document.getElementById('status-message');
+        const resultadoImagemDiv = document.getElementById('resultado-imagem');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        // Função utilitária para converter Base64 para Blob e criar um link de download
+        function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+            const byteCharacters = atob(b64Data);
+            const byteArrays = [];
+            for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                const slice = byteCharacters.slice(offset, offset + sliceSize);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
             }
-
-            const div = document.createElement("div");
-            div.className = "result-item";
-
-            const img = document.createElement("img");
-            img.src = "data:image/png;base64," + imgBase64;
-            
-            const btn = document.createElement("button");
-            btn.textContent = "Salvar";
-            btn.className = "download-btn";
-            btn.onclick = () => {
-                const a = document.createElement("a");
-                a.href = img.src;
-                a.download = "processada_" + (i + 1) + ".png";
-                a.click();
-            };
-
-            div.appendChild(img);
-            div.appendChild(btn);
-            results.appendChild(div);
-            processedFiles.push(img.src);
-        });
-
-        if (processedFiles.length > 0) {
-            baixarTodasBtn.style.display = "inline-block";
+            return new Blob(byteArrays, { type: contentType });
         }
         
-    } catch (err) {
-        displayError(`Falha ao processar imagens. O servidor Render pode estar inativo ou ter falhado: ${err.message}`);
-    } finally {
-        loaderContainer.style.display = "none";
-        processarBtn.disabled = false;
-        limparBtn.disabled = false;
-        loaderText.textContent = "0%";
-    }
-});
+        // Listener para o input de arquivo (habilita botão e mostra nome)
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+                submitButton.disabled = false;
+                buttonText.textContent = 'Remover Fundo';
+            } else {
+                fileNameDisplay.textContent = 'Clique para selecionar ou arraste e solte uma imagem (PNG ou JPG)';
+                submitButton.disabled = true;
+                buttonText.textContent = 'Selecione uma Imagem';
+            }
+        });
 
-// Limpar tudo
-limparBtn.addEventListener("click", () => {
-    input.value = "";
-    preview.innerHTML = "";
-    results.innerHTML = "";
-    processedFiles = [];
-    dropArea.style.display = "flex";
-    processarBtn.style.display = "none";
-    limparBtn.style.display = "none";
-    baixarTodasBtn.style.display = "none";
-    loaderContainer.style.display = "none";
-    clearMessages();
-});
+        // Listener para o formulário
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-// Baixar todas
-baixarTodasBtn.addEventListener("click", () => {
-    processedFiles.forEach((src, idx) => {
-        const a = document.createElement("a");
-        a.href = src;
-        a.download = "processada_" + (idx + 1) + ".png";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    });
-});
-</script>
+            // 1. Estado de Carregamento
+            submitButton.disabled = true;
+            buttonText.textContent = 'Processando...';
+            loadingSpinner.classList.remove('hidden');
+            statusMessage.classList.add('hidden');
+            resultadoImagemDiv.innerHTML = '';
+            
+            const formData = new FormData();
+            // O nome do campo deve ser 'imagens', conforme o seu código Flask espera
+            formData.append('imagens', fileInput.files[0]);
 
+            try {
+                // 2. Chamada à API do Render
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${await response.text()}`);
+                }
+
+                // 3. Processamento da Resposta
+                const data = await response.json();
+
+                if (data.status === 'success' && data.imagem_base64) {
+                    const base64Data = data.imagem_base64;
+                    const blob = b64toBlob(base64Data, 'image/png');
+                    const imageUrl = URL.createObjectURL(blob);
+                    
+                    // Exibir Imagem
+                    resultadoImagemDiv.innerHTML = `
+                        <p class="text-green-600 mb-4">Fundo Removido com Sucesso!</p>
+                        <img src="${imageUrl}" alt="Imagem sem fundo">
+                        <a href="${imageUrl}" download="imagem_sem_fundo.png" class="mt-4 inline-block bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200">
+                            Baixar Imagem
+                        </a>
+                    `;
+                } else {
+                    throw new Error('Resposta inválida da API ou imagem não processada.');
+                }
+            } catch (error) {
+                console.error("Erro ao remover fundo:", error);
+                statusMessage.textContent = `Erro: ${error.message}`;
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('text-red-500');
+
+                resultadoImagemDiv.innerHTML = ''; // Limpa resultados anteriores
+            } finally {
+                // 4. Finalização
+                loadingSpinner.classList.add('hidden');
+                buttonText.textContent = 'Remover Fundo Novamente';
+                submitButton.disabled = false;
+                submitButton.classList.remove('bg-blue-600');
+                submitButton.classList.add('bg-gray-500'); // Muda cor após o primeiro uso
+            }
+        });
+    </script>
 </body>
 </html>
