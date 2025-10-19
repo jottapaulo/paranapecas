@@ -54,7 +54,6 @@
         }
         .brand-link:hover { text-decoration: underline; }
 
-        /* Usando placeholders simples para as imagens de link que não temos */
         .social-icon { 
             width: 24px; 
             height: 24px; 
@@ -178,6 +177,22 @@
         footer { background: var(--card); text-align: center; padding: 20px; margin-top: 40px; color: var(--muted); border-top: 1px solid #222; }
         footer a { color: var(--orange); text-decoration: none; }
         footer a:hover { text-decoration: underline; }
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+            .social-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            main h1 {
+                font-size: 40px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -186,7 +201,6 @@
     <div class="brand">PARANÁ PEÇAS TOLEDO</div>
     <div class="social-links">
         <a href="https://www.paranapecastoledo.com.br" target="_blank" class="brand-link">
-            <!-- Usando um placeholder SVG já que não temos o arquivo pictures/logo.png -->
             <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z"/></svg> 
             SITE OFICIAL
         </a>
@@ -208,7 +222,7 @@
     <label class="upload-area" id="uploadArea">
         <input type="file" id="inputImagem" accept="image/*" multiple hidden>
         <button class="btn">➕ Iniciar com foto</button>
-        <p class="sub-text">ou solte uma imagem aqui (Máximo 1MB por arquivo na Vercel)</p>
+        <p class="sub-text">ou solte uma imagem aqui</p>
     </label>
 
     <div class="preview" id="preview" style="display:none;"></div>
@@ -218,7 +232,7 @@
         <button class="btn btn-clear" id="limparBtn" style="display:none;">🗑️ Limpar</button>
     </div>
     
-    <!-- Novo elemento para exibir mensagens de status/erro -->
+    <!-- Elemento para exibir mensagens de status/erro -->
     <p id="statusMessage" style="color: #ff4d4d; margin-top: 20px; font-weight: 600;"></p>
 
     <!-- Loader circular compacto -->
@@ -236,6 +250,12 @@
 </footer>
 
 <script>
+// ******** VARIÁVEL DE CONFIGURAÇÃO CRUCIAL ********
+// Quando o deploy no Render estiver pronto, substitua o placeholder
+// pela URL real do seu serviço Render (ex: https://seu-projeto.onrender.com/remover-fundo)
+const API_BASE_URL = "API_URL_PLACEHOLDER"; 
+// *************************************************
+
 const dropArea = document.getElementById("uploadArea");
 const input = document.getElementById("inputImagem");
 const preview = document.getElementById("preview");
@@ -245,7 +265,7 @@ const results = document.getElementById("results");
 const baixarTodasBtn = document.getElementById("baixarTodasBtn");
 const loaderContainer = document.getElementById("loaderContainer");
 const loaderText = document.getElementById("loaderText");
-const statusMessage = document.getElementById("statusMessage"); // Novo elemento para mensagens
+const statusMessage = document.getElementById("statusMessage");
 let processedFiles = [];
 
 // Função para limpar todas as mensagens de erro/status
@@ -254,10 +274,15 @@ function clearMessages() {
     results.querySelectorAll('.error-item').forEach(el => el.remove());
 }
 
-// Abrir explorador de arquivos
+// Função utilitária para exibir erros na tela
+function displayError(message) {
+    statusMessage.textContent = message;
+    console.error(message);
+}
+
+// Event Listeners para a UI (não alterados)
 dropArea.addEventListener("click", () => input.click());
 
-// Pré-visualização de imagens
 input.addEventListener("change", () => {
     clearMessages();
     const files = input.files;
@@ -267,7 +292,6 @@ input.addEventListener("change", () => {
         processarBtn.style.display = "inline-block";
         limparBtn.style.display = "inline-block";
     } else {
-         // Se o usuário cancelou a seleção, volta ao estado inicial
         limparBtn.click(); 
         return;
     }
@@ -283,7 +307,6 @@ input.addEventListener("change", () => {
     });
 });
 
-// Drag & drop
 ["dragenter","dragover"].forEach(eventName => {
     dropArea.addEventListener(eventName, e => {
         e.preventDefault();
@@ -302,11 +325,15 @@ dropArea.addEventListener("drop", e => {
     input.dispatchEvent(new Event("change"));
 });
 
-// Processar imagens (REFATORADO: UMA CHAMADA DE API)
+// Processar imagens: Atualizado para usar API_BASE_URL
 processarBtn.addEventListener("click", async () => {
     clearMessages();
+    if (API_BASE_URL === "API_URL_PLACEHOLDER") {
+        displayError("ERRO: A URL da API do Render não foi configurada no código. Por favor, substitua 'API_URL_PLACEHOLDER' pela URL real do seu serviço Render.");
+        return;
+    }
     if (!input.files.length) {
-        statusMessage.textContent = "Selecione imagens primeiro!";
+        displayError("Selecione imagens primeiro!");
         return;
     }
     
@@ -317,12 +344,10 @@ processarBtn.addEventListener("click", async () => {
     const files = [...input.files];
     const formData = new FormData();
     
-    // 1. Coleta todos os arquivos em um único FormData
     files.forEach(file => {
         formData.append("imagens", file);
     });
     
-    // Desabilitar botões enquanto processa
     processarBtn.disabled = true;
     limparBtn.disabled = true;
     baixarTodasBtn.style.display = "none";
@@ -330,27 +355,25 @@ processarBtn.addEventListener("click", async () => {
     try {
         loaderText.textContent = "0%";
         
-        // 2. Faz UMA ÚNICA chamada para a API
-        // ENDPOINT CORRIGIDO para Vercel (usa caminho relativo)
-        const response = await fetch("/api/remover-fundo", {
+        // Chamada AGORA para o endpoint externo do Render
+        const response = await fetch(API_BASE_URL, {
             method: "POST",
             body: formData
         });
 
         if (!response.ok) {
-             throw new Error(`Erro de rede ou servidor: HTTP ${response.status}.`);
+             // Tenta extrair mensagem de erro do corpo da resposta, se possível
+            const errorBody = await response.text();
+            throw new Error(`Erro de rede ou servidor: HTTP ${response.status}. Detalhes: ${errorBody.substring(0, 100)}...`);
         }
         
-        const data = await response.json(); // Array de resultados base64 ou erros
+        const data = await response.json(); 
         
-        // 3. Processa o array de resultados
         data.forEach((imgBase64, i) => {
-            // Atualiza porcentagem do loader (simulada, pois a chamada é única)
             const percent = Math.round(((i + 1) / files.length) * 100);
             loaderText.textContent = percent + "%";
             
             if (imgBase64.startsWith('erro:')) {
-                // Exibe erro específico para a imagem
                 const errorText = imgBase64.substring(5);
                 const div = document.createElement("div");
                 div.className = "result-item error-item";
@@ -386,13 +409,12 @@ processarBtn.addEventListener("click", async () => {
         }
         
     } catch (err) {
-        console.error("Erro geral no processamento:", err);
-        statusMessage.textContent = `Falha ao processar imagens: ${err.message}. Verifique os logs da Vercel.`;
+        displayError(`Falha ao processar imagens. O servidor Render pode estar inativo ou ter falhado: ${err.message}`);
     } finally {
         loaderContainer.style.display = "none";
         processarBtn.disabled = false;
         limparBtn.disabled = false;
-        loaderText.textContent = "0%"; // Reset loader text
+        loaderText.textContent = "0%";
     }
 });
 
